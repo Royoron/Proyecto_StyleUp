@@ -5,7 +5,7 @@
 import { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Button, Label, Input, Select, AlertaExito, SeparadorDorado } from '../ui';
-import { barberos, especialidades, horasDisponibles } from '../../data/mockData';
+import { cuentasBarbero, especialidades, horasDisponibles } from '../../data/mockData';
 import { esImagenValida, leerArchivoComoBase64 } from '../../utils/helpers';
 import type { FormularioCita } from '../../types';
 
@@ -101,7 +101,7 @@ export default function PanelReservar() {
               <Label>Barbero</Label>
               <Select name="cedula_barbero" value={form.cedula_barbero} onChange={handleChange}>
                 <option value="">Seleccionar barbero</option>
-                {barberos.map(b => (
+                {cuentasBarbero.map(b => (
                   <option key={b.cedula_barbero} value={b.cedula_barbero}>
                     {b.nombre} {b.apellido}
                   </option>

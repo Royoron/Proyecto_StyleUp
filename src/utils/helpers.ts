@@ -4,11 +4,11 @@
 // ══════════════════════════════════════════════════════════
 
 import type { EstadoCita } from '../types';
-import { barberos, especialidades } from '../data/mockData';
+import { cuentasBarbero, especialidades } from '../data/mockData';
 
 /** Retorna "Nombre Apellido" dado cedula_barbero */
 export function getNombreBarbero(cedula: string): string {
-  const b = barberos.find(b => b.cedula_barbero === cedula);
+  const b = cuentasBarbero.find(b => b.cedula_barbero === cedula);
   return b ? `${b.nombre} ${b.apellido}` : 'Desconocido';
 }
 
