@@ -4,9 +4,10 @@ import { especialidades } from '../../data/mockData';
 import type { DiaSemana, FranjaHoraria } from '../../types';
 
 interface RegistroBarberoModalProps {
-  onClose:           () => void;
-  onAbrirLogin:      () => void;
-  onRegistroExitoso: () => void;
+  onClose:                 () => void;
+  onAbrirLogin:            () => void;
+  onAbrirRegistroCliente:  () => void;
+  onRegistroExitoso:       () => void;
 }
 
 const diasLaborales: DiaSemana[] = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
@@ -14,6 +15,7 @@ const diasLaborales: DiaSemana[] = ['Lunes', 'Martes', 'Miércoles', 'Jueves', '
 export default function RegistroBarberoModal({
   onClose,
   onAbrirLogin,
+  onAbrirRegistroCliente,
   onRegistroExitoso,
 }: RegistroBarberoModalProps) {
   const { registrarBarbero } = useApp();
@@ -98,6 +100,15 @@ export default function RegistroBarberoModal({
         <div className="su-modal-body">
           <h4 className="su-modal-titulo">Registro de barbero</h4>
           <p className="su-modal-sub">Crea tu perfil profesional y define un horario base.</p>
+
+          <div className="rol-selector">
+            <button className="rol-btn" type="button" onClick={onAbrirRegistroCliente}>
+              <i className="bi bi-person-fill" /> Cliente
+            </button>
+            <button className="rol-btn activo" type="button">
+              <i className="bi bi-scissors" /> Barbero
+            </button>
+          </div>
 
           <div className="row g-3">
             <div className="col-6">

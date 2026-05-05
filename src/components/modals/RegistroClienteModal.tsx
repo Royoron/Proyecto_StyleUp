@@ -6,14 +6,16 @@ import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
 interface RegistroClienteModalProps {
-  onClose:           () => void;
-  onAbrirLogin:      () => void;
-  onRegistroExitoso: () => void;
+  onClose:                 () => void;
+  onAbrirLogin:            () => void;
+  onAbrirRegistroBarbero:  () => void;
+  onRegistroExitoso:       () => void;
 }
 
 export default function RegistroClienteModal({
   onClose,
   onAbrirLogin,
+  onAbrirRegistroBarbero,
   onRegistroExitoso,
 }: RegistroClienteModalProps) {
   const { registrarCliente } = useApp();
@@ -99,6 +101,15 @@ export default function RegistroClienteModal({
         <div className="su-modal-body">
           <h4 className="su-modal-titulo">Crear cuenta</h4>
           <p className="su-modal-sub">Únete y gestiona tus citas fácilmente</p>
+
+          <div className="rol-selector">
+            <button className="rol-btn activo" type="button">
+              <i className="bi bi-person-fill" /> Cliente
+            </button>
+            <button className="rol-btn" type="button" onClick={onAbrirRegistroBarbero}>
+              <i className="bi bi-scissors" /> Barbero
+            </button>
+          </div>
 
           <div className="row g-3">
             <div className="col-6">

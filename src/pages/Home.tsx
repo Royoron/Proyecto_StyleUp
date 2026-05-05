@@ -50,41 +50,27 @@ export default function Home() {
       {modalAuth === 'login' && (
         <LoginModal
           onClose={() => setModalAuth(null)}
-          onAbrirRegistro={() => setModalAuth('registroCliente')}
+          onAbrirRegistro={(rol) => setModalAuth(rol === 'barbero' ? 'registroBarbero' : 'registroCliente')}
           onLoginExitoso={() => navigate('/dashboard')}
         />
       )}
 
       {(modalAuth === 'registroCliente' || modalAuth === 'registroBarbero') && (
-        <>
-          <div className="registro-tabs">
-            <button
-              className={`rol-btn ${modalAuth === 'registroCliente' ? 'activo' : ''}`}
-              onClick={() => setModalAuth('registroCliente')}
-            >
-              <i className="bi bi-person-fill" /> Cliente
-            </button>
-            <button
-              className={`rol-btn ${modalAuth === 'registroBarbero' ? 'activo' : ''}`}
-              onClick={() => setModalAuth('registroBarbero')}
-            >
-              <i className="bi bi-scissors" /> Barbero
-            </button>
-          </div>
-          {modalAuth === 'registroCliente' ? (
-            <RegistroClienteModal
-              onClose={() => setModalAuth(null)}
-              onAbrirLogin={() => setModalAuth('login')}
-              onRegistroExitoso={() => navigate('/dashboard')}
-            />
-          ) : (
-            <RegistroBarberoModal
-              onClose={() => setModalAuth(null)}
-              onAbrirLogin={() => setModalAuth('login')}
-              onRegistroExitoso={() => navigate('/dashboard')}
-            />
-          )}
-        </>
+        modalAuth === 'registroCliente' ? (
+          <RegistroClienteModal
+            onClose={() => setModalAuth(null)}
+            onAbrirLogin={() => setModalAuth('login')}
+            onAbrirRegistroBarbero={() => setModalAuth('registroBarbero')}
+            onRegistroExitoso={() => navigate('/dashboard')}
+          />
+        ) : (
+          <RegistroBarberoModal
+            onClose={() => setModalAuth(null)}
+            onAbrirLogin={() => setModalAuth('login')}
+            onAbrirRegistroCliente={() => setModalAuth('registroCliente')}
+            onRegistroExitoso={() => navigate('/dashboard')}
+          />
+        )
       )}
     </main>
   );

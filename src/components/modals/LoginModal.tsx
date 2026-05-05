@@ -9,7 +9,7 @@ import type { RolUsuario } from '../../types';
 
 interface LoginModalProps {
   onClose:          () => void;
-  onAbrirRegistro:  () => void;
+  onAbrirRegistro:  (rol: RolUsuario) => void;
   onLoginExitoso:   (rol: RolUsuario) => void;
 }
 
@@ -32,12 +32,6 @@ export default function LoginModal({ onClose, onAbrirRegistro, onLoginExitoso }:
     onClose();
   };
 
-  // Credenciales demo para facilitar prueba
-  const fillDemo = () => {
-    if (rol === 'cliente') { setCorreo('roger@gmail.com');    setPassword('cliente123'); }
-    else                   { setCorreo('carlos@styleup.co');  setPassword('barbero123'); }
-    setError('');
-  };
 
   return (
     <div className="su-modal-overlay" onClick={onClose}>
@@ -96,17 +90,13 @@ export default function LoginModal({ onClose, onAbrirRegistro, onLoginExitoso }:
             />
           </div>
 
-          {/* Error */}
+          <div></div>
+
           {error && (
             <div className="su-alerta-error">
               <i className="bi bi-exclamation-circle me-2" />{error}
             </div>
           )}
-
-          {/* Demo hint */}
-          <div className="su-demo-hint" onClick={fillDemo}>
-            <i className="bi bi-lightning-fill" /> Usar credenciales demo de {rol}
-          </div>
 
           {/* Botón principal */}
           <button
@@ -121,14 +111,12 @@ export default function LoginModal({ onClose, onAbrirRegistro, onLoginExitoso }:
           </button>
 
           {/* Pie */}
-          {rol === 'cliente' && (
-            <p className="su-modal-pie">
-              ¿No tienes cuenta?{' '}
-              <span className="su-link" onClick={() => { onClose(); onAbrirRegistro(); }}>
-                Regístrate aquí
-              </span>
-            </p>
-          )}
+          <p className="su-modal-pie">
+            ¿No tienes cuenta?{' '}
+            <span className="su-link" onClick={() => { onClose(); onAbrirRegistro(rol); }}>
+              Regístrate como {rol}
+            </span>
+          </p>
         </div>
       </div>
     </div>
