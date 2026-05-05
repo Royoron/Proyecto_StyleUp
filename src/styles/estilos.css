@@ -343,3 +343,156 @@ footer .derechos {
     margin-right: auto;
   }
 }
+
+.su-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  background: rgba(0, 0, 0, .72);
+  backdrop-filter: blur(10px);
+}
+
+.su-modal {
+  width: min(430px, 100%);
+  background: var(--oscuro2);
+  border: 1px solid rgba(201,168,76,.22);
+  border-radius: 6px;
+  color: var(--claro);
+  box-shadow: 0 24px 70px rgba(0,0,0,.45);
+}
+
+.su-modal-lg {
+  width: min(620px, 100%);
+}
+
+.su-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.4rem;
+  border-bottom: 1px solid rgba(201,168,76,.1);
+}
+
+.su-modal-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--dorado);
+}
+
+.su-modal-logo span {
+  color: var(--claro);
+}
+
+.su-modal-close {
+  background: none;
+  border: none;
+  color: var(--gris);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.su-modal-body {
+  padding: 1.5rem;
+}
+
+.su-modal-titulo {
+  font-family: 'Playfair Display', serif;
+  color: var(--claro);
+  margin-bottom: .35rem;
+}
+
+.su-modal-sub,
+.su-modal-pie {
+  color: var(--gris);
+  font-size: .88rem;
+}
+
+.su-campo-grupo {
+  margin-top: 1rem;
+}
+
+.rol-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+  margin: 1rem 0;
+}
+
+.rol-btn {
+  background: var(--oscuro3);
+  border: 1px solid rgba(201,168,76,.14);
+  color: var(--gris);
+  padding: .75rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.rol-btn.activo {
+  border-color: var(--dorado);
+  color: var(--dorado);
+}
+
+.su-alerta-error {
+  margin-top: 1rem;
+  color: #dc5050;
+  font-size: .84rem;
+}
+
+.su-alerta-ok {
+  margin-top: 1rem;
+  color: #50b478;
+  font-size: .84rem;
+}
+
+.su-demo-hint {
+  color: var(--dorado);
+  font-size: .78rem;
+  margin: 1rem 0;
+  cursor: pointer;
+}
+
+.su-btn-submit {
+  margin-top: .4rem;
+}
+
+.su-link {
+  color: var(--dorado);
+  cursor: pointer;
+}
+
+.su-spin {
+  animation: suSpin .8s linear infinite;
+}
+
+@keyframes suSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.registro-tabs {
+  position: fixed;
+  top: calc(50% - 332px);
+  left: 50%;
+  z-index: 260;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  width: min(620px, calc(100% - 2.4rem));
+  transform: translateX(-50%);
+}
+
+.registro-tabs + .su-modal-overlay .su-modal {
+  margin-top: 3.6rem;
+}
+
+@media (max-height: 760px) {
+  .registro-tabs {
+    top: .8rem;
+  }
+}

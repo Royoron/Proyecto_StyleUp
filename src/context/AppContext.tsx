@@ -6,10 +6,10 @@ import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type {
   Cita, Cliente, HistorialCita, PanelId, PanelBarberoId,
-  FormularioCita, FormularioPerfil,
+  FormularioCita, FormularioPerfil, FormularioPerfilBarbero,
   ClienteRegistrado, BarberoRegistrado,
   FormularioRegistroCliente, FormularioRegistroBarbero,
-  Sesion, RolUsuario,
+  Sesion, RolUsuario, FranjaHoraria,
 } from '../types';
 import {
   citasGlobales,          
@@ -43,10 +43,15 @@ interface AppContextType {
   navegarBarberoA:     (panel: PanelBarberoId) => void;
   actualizarEstadoCita:(idCita: string, estado: 'Completada' | 'Cancelada') => void;
   todasLasCitas:       Cita[];
+  historialBarbero:    HistorialCita[];
   barberoActual:       BarberoRegistrado | null;
+  actualizarHorarioBarbero: (horario: FranjaHoraria[]) => void;
+  actualizarPerfilBarbero:  (form: FormularioPerfilBarbero) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
+
+
 
 // ── Provider ───────────────────────────────────────────────
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -113,7 +118,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       cedula_barbero:  form.cedula,
       nombre:          form.nombre,
       apellido:        form.apellido,
-      id_especialidad: 'ESP001',
+      id_especialidad: form.id_especialidad,
       correo:          form.correo,
       telefono:        form.telefono,
       password:        form.password,
@@ -176,8 +181,52 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCitas(prev => prev.map(c => c.id_cita === idCita ? { ...c, estado } : c));
   }, []);
 
+  const actualizarHorarioBarbero = useCallback((horario: FranjaHoraria[]) => {
+    if (!barberoActual) return;
+    setBarberos(prev => prev.map(b =>
+      b.cedula_barbero === barberoActual.cedula_barbero ? { ...b, horario } : b
+    ));
+    setSesion(prev => {
+      if (!prev || prev.rol !== 'barbero') return prev;
+      return {
+        ...prev,
+        usuario: { ...(prev.usuario as BarberoRegistrado), horario },
+      };
+    });
+  }, [barberoActual]);
+
+  const actualizarPerfilBarbero = useCallback((form: FormularioPerfilBarbero) => {
+    if (!barberoActual) return;
+    const partes = form.nombre_completo.trim().split(' ');
+    const actualizado: Partial<BarberoRegistrado> = {
+      nombre:          partes[0] ?? barberoActual.nombre,
+      apellido:        partes.slice(1).join(' ') || barberoActual.apellido,
+      correo:          form.correo,
+      telefono:        form.telefono,
+      id_especialidad: form.id_especialidad,
+    };
+    setBarberos(prev => prev.map(b =>
+      b.cedula_barbero === barberoActual.cedula_barbero ? { ...b, ...actualizado } : b
+    ));
+    setSesion(prev => {
+      if (!prev || prev.rol !== 'barbero') return prev;
+      return {
+        ...prev,
+        usuario: { ...(prev.usuario as BarberoRegistrado), ...actualizado },
+      };
+    });
+  }, [barberoActual]);
+
   const todasLasCitas = barberoActual
     ? citas.filter(c => c.cedula_barbero === barberoActual.cedula_barbero)
+    : [];
+
+  const historialCliente = sesion?.rol === 'cliente'
+    ? historial.filter(h => h.cedula_cliente === clienteSesion.cedula_cliente)
+    : [];
+
+  const historialBarbero = barberoActual
+    ? historial.filter(h => h.cedula_barbero === barberoActual.cedula_barbero)
     : [];
 
   return (
@@ -185,7 +234,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sesion, login, logout, registrarCliente, registrarBarbero,
       cliente:            clienteSesion,
       citas:              citas.filter(c => c.cedula_cliente === clienteSesion.cedula_cliente),
-      historial,
+      historial:          historialCliente,
       panelActivo,
       navegarA,
       agregarCita,
@@ -195,7 +244,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       navegarBarberoA,
       actualizarEstadoCita,
       todasLasCitas,
+      historialBarbero,
       barberoActual,
+      actualizarHorarioBarbero,
+      actualizarPerfilBarbero,
     }}>
       {children}
     </AppContext.Provider>

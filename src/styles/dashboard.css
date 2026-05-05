@@ -128,9 +128,193 @@
 select.campo-formulario option { background: var(--oscuro2); }
 .campo-formulario:focus { border-color: var(--dorado); }
 
+.agenda-timeline {
+    display: grid;
+    gap: .85rem;
+}
+
+.agenda-item {
+    display: grid;
+    grid-template-columns: 58px 18px 1fr;
+    align-items: center;
+    gap: .7rem;
+}
+
+.agenda-hora {
+    color: var(--dorado);
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+}
+
+.agenda-punto {
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--dorado);
+    border-radius: 50%;
+    position: relative;
+}
+
+.agenda-punto::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 4px;
+    width: 1px;
+    height: 38px;
+    background: rgba(201,168,76,.22);
+}
+
+.agenda-item:last-child .agenda-punto::after { display: none; }
+
+.agenda-card {
+    background: var(--oscuro2);
+    border: 1px solid rgba(201,168,76,.12);
+    border-radius: 4px;
+    padding: .8rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.agenda-card strong {
+    color: var(--claro);
+    font-size: .9rem;
+}
+
+.agenda-vacia {
+    color: var(--gris);
+    padding: 1.2rem;
+    background: var(--oscuro2);
+    border: 1px dashed rgba(201,168,76,.2);
+    border-radius: 4px;
+    text-align: center;
+}
+
+.stat-barbero {
+    display: grid;
+    gap: .35rem;
+}
+
+.stat-barbero i {
+    color: var(--dorado);
+    font-size: 1.4rem;
+}
+
+.stat-barbero span {
+    color: var(--gris);
+    font-size: .78rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.stat-barbero strong {
+    color: var(--claro);
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+}
+
+.filtro-citas {
+    display: inline-flex;
+    border: 1px solid rgba(201,168,76,.18);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.filtro-citas button {
+    background: var(--oscuro2);
+    border: none;
+    border-right: 1px solid rgba(201,168,76,.12);
+    color: var(--gris);
+    padding: .45rem .8rem;
+    font-size: .75rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.filtro-citas button:last-child { border-right: none; }
+.filtro-citas button.activo { color: var(--oscuro); background: var(--dorado); }
+
+.acciones-cita {
+    display: flex;
+    gap: .45rem;
+    flex-wrap: wrap;
+}
+
+.acciones-cita button {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,.35);
+    color: var(--dorado);
+    border-radius: 3px;
+    padding: .25rem .55rem;
+    font-size: .7rem;
+    cursor: pointer;
+}
+
+.horario-grid {
+    display: grid;
+    gap: .75rem;
+}
+
+.horario-dia {
+    display: grid;
+    grid-template-columns: minmax(110px, 1fr) 130px 130px;
+    gap: .75rem;
+    align-items: center;
+    padding: .8rem;
+    background: var(--oscuro2);
+    border: 1px solid rgba(201,168,76,.1);
+    border-radius: 4px;
+}
+
+.horario-dia.activo { border-color: rgba(201,168,76,.35); }
+
+.horario-dia label {
+    display: flex;
+    gap: .55rem;
+    align-items: center;
+    color: var(--claro);
+    margin: 0;
+}
+
+.horario-dia input[type="time"] {
+    background: var(--oscuro3);
+    border: 1px solid rgba(201,168,76,.18);
+    color: var(--claro);
+    padding: .45rem .55rem;
+    border-radius: 3px;
+}
+
+.horario-dia input:disabled {
+    opacity: .45;
+}
+
+.perfil-stat {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(201,168,76,.1);
+    display: grid;
+    gap: .25rem;
+}
+
+.perfil-stat span {
+    color: var(--gris);
+    font-size: .78rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.perfil-stat strong {
+    color: var(--dorado);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+}
+
 @media (max-width: 900px) {
     .sidebar { transform: translateX(-100%); }
     .sidebar.abierto { transform: translateX(0); }
     .main-content { margin-left: 0; padding: 1.2rem; }
     .btn-menu-movil { display: block; }
+    .horario-dia { grid-template-columns: 1fr; }
 }

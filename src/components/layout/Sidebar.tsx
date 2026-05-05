@@ -33,7 +33,7 @@ const navCuenta: NavItem[] = [
 ];
 
 export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
-  const { cliente, panelActivo, navegarA } = useApp();
+  const { cliente, panelActivo, navegarA, logout } = useApp();
 
   const handleNav = (panel: PanelId) => {
     navegarA(panel);
@@ -79,7 +79,7 @@ export default function Sidebar({ abierto, onCerrar }: SidebarProps) {
 
         {/* Footer */}
         <div className="sidebar-footer">
-          <button className="btn-cerrar-sesion" onClick={() => window.location.href = '/'}>
+          <button className="btn-cerrar-sesion" onClick={logout}>
             <i className="bi bi-box-arrow-left" /> Cerrar sesión
           </button>
         </div>

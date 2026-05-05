@@ -100,6 +100,14 @@ export interface FormularioPerfil {
   cedula_cliente:  string;
 }
 
+export interface FormularioPerfilBarbero {
+  nombre_completo: string;
+  correo:          string;
+  telefono:        string;
+  cedula_barbero:  string;
+  id_especialidad: string;
+}
+
 export interface FormularioRegistroCliente {
   nombre:    string;
   apellido:  string;
@@ -117,6 +125,7 @@ export interface FormularioRegistroBarbero {
   telefono: string;
   cedula:   string;   
   password: string;
+  id_especialidad: string;
   horario:  FranjaHoraria[];
 }
 

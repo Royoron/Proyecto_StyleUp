@@ -3,19 +3,44 @@
 //  Configura el enrutador y envuelve todo con el contexto
 // ══════════════════════════════════════════════════════════
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
+import { AppProvider, useApp } from './context/AppContext';
+import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
-// import Home from './pages/Home'; // ← agregar cuando se migre index.html
+import DashboardBarbero from './pages/DashboardBarbero';
+
+function RutaProtegida({ children }: { children: React.ReactNode }) {
+  const { sesion } = useApp();
+
+  if (!sesion) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
+function DashboardPorRol() {
+  const { sesion } = useApp();
+
+  if (sesion?.rol === 'barbero') return <DashboardBarbero />;
+
+  return <Dashboard />;
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <AppProvider>
         <Routes>
-          {/* Ruta temporal: ir directo al dashboard mientras se migra Home */}
-          <Route path="/"          element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/dashboard"
+            element={
+              <RutaProtegida>
+                <DashboardPorRol />
+              </RutaProtegida>
+            }
+          />
         </Routes>
       </AppProvider>
     </BrowserRouter>
