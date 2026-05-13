@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Local nested copy used during development
+Proyecto_StyleUp-main/
+
+# API local/build artifacts
+apiStyleup/.env
+apiStyleup/dev.db
+apiStyleup/dev.sqbpro
+apiStyleup/dist/
+apiStyleup/src/generated/prisma/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

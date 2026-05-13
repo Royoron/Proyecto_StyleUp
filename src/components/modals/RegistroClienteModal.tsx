@@ -2,78 +2,73 @@
 //  REGISTRO CLIENTE MODAL — StyleUp
 // ══════════════════════════════════════════════════════════
 
-import { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import { useState } from "react";
+import { useApp } from "../../context/AppContext";
 
 interface RegistroClienteModalProps {
-  onClose:                 () => void;
-  onAbrirLogin:            () => void;
-  onAbrirRegistroBarbero:  () => void;
-  onRegistroExitoso:       () => void;
+  onClose: () => void;
+  onAbrirLogin: () => void;
+  onRegistroExitoso: () => void;
 }
 
 export default function RegistroClienteModal({
   onClose,
   onAbrirLogin,
-  onAbrirRegistroBarbero,
   onRegistroExitoso,
 }: RegistroClienteModalProps) {
   const { registrarCliente } = useApp();
 
   const [form, setForm] = useState({
-    nombre:   '',
-    apellido: '',
-    correo:   '',
-    telefono: '',
-    cedula:   '',       // ✅ "cedula" — coincide con FormularioRegistroCliente
-    password: '',
+    nombre: "",
+    apellido: "",
+    correo: "",
+    telefono: "",
+    cedula: "", // ✅ "cedula" — coincide con FormularioRegistroCliente
+    password: "",
   });
 
-  const [confirmar, setConfirmar] = useState(''); // ✅ fuera del form y del handler
+  const [confirmar, setConfirmar] = useState(""); // ✅ fuera del form y del handler
 
-  const [error,    setError]    = useState('');
+  const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    setError('');
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError("");
   };
 
   const handleConfirmarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setConfirmar(e.target.value);
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async () => {
     const { nombre, apellido, correo, telefono, cedula, password } = form;
 
     if (!nombre || !apellido || !correo || !cedula || !password) {
-      setError('Completa todos los campos obligatorios.');
+      setError("Completa todos los campos obligatorios.");
       return;
     }
 
     if (password !== confirmar) {
-      setError('Las contraseñas no coinciden.');
+      setError("Las contraseñas no coinciden.");
       return;
     }
 
     if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres.');
+      setError("La contraseña debe tener al menos 6 caracteres.");
       return;
     }
 
     setCargando(true);
-    await new Promise(r => setTimeout(r, 700));
-
-    // ✅ registrarCliente retorna { ok, mensaje } — no un booleano
-    const { ok, mensaje } = registrarCliente({
-        nombre,
-        apellido,
-        correo,
-        telefono,
-        cedula,
-        password,
-        fecha_registro: new Date()
+    const { ok, mensaje } = await registrarCliente({
+      nombre,
+      apellido,
+      correo,
+      telefono,
+      cedula,
+      password,
+      fecha_registro: new Date(),
     });
 
     setCargando(false);
@@ -89,10 +84,14 @@ export default function RegistroClienteModal({
 
   return (
     <div className="su-modal-overlay" onClick={onClose}>
-      <div className="su-modal su-modal-lg" onClick={e => e.stopPropagation()}>
-
+      <div
+        className="su-modal su-modal-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="su-modal-header">
-          <div className="su-modal-logo">Style<span>Up</span></div>
+          <div className="su-modal-logo">
+            Style<span>Up</span>
+          </div>
           <button className="su-modal-close" onClick={onClose}>
             <i className="bi bi-x-lg" />
           </button>
@@ -105,9 +104,6 @@ export default function RegistroClienteModal({
           <div className="rol-selector">
             <button className="rol-btn activo" type="button">
               <i className="bi bi-person-fill" /> Cliente
-            </button>
-            <button className="rol-btn" type="button" onClick={onAbrirRegistroBarbero}>
-              <i className="bi bi-scissors" /> Barbero
             </button>
           </div>
 
@@ -189,7 +185,8 @@ export default function RegistroClienteModal({
 
           {error && (
             <div className="su-alerta-error mt-3">
-              <i className="bi bi-exclamation-circle me-2" />{error}
+              <i className="bi bi-exclamation-circle me-2" />
+              {error}
             </div>
           )}
 
@@ -198,15 +195,28 @@ export default function RegistroClienteModal({
             onClick={handleSubmit}
             disabled={cargando}
           >
-            {cargando
-              ? <><i className="bi bi-arrow-repeat su-spin me-2" />Creando cuenta...</>
-              : <><i className="bi bi-person-check me-2" />Crear cuenta</>
-            }
+            {cargando ? (
+              <>
+                <i className="bi bi-arrow-repeat su-spin me-2" />
+                Creando cuenta...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-person-check me-2" />
+                Crear cuenta
+              </>
+            )}
           </button>
 
           <p className="su-modal-pie">
-            ¿Ya tienes cuenta?{' '}
-            <span className="su-link" onClick={() => { onClose(); onAbrirLogin(); }}>
+            ¿Ya tienes cuenta?{" "}
+            <span
+              className="su-link"
+              onClick={() => {
+                onClose();
+                onAbrirLogin();
+              }}
+            >
               Inicia sesión
             </span>
           </p>

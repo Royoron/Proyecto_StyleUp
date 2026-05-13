@@ -1,9 +1,29 @@
-import { useMemo, useState } from 'react';
-import { useApp } from '../context/AppContext';
-import { Avatar, Badge, Button, EtiquetaSeccion, Input, Label, Select } from '../components/ui';
-import { especialidades } from '../data/mockData';
-import { fechaActualLegible, formatearFecha, getInicial, getNombreEspecialidad } from '../utils/helpers';
-import type { Cita, DiaSemana, FormularioPerfilBarbero, FranjaHoraria, HistorialCita, PanelBarberoId } from '../types';
+import { useEffect, useMemo, useState } from "react";
+import { useApp } from "../context/AppContext";
+import {
+  Avatar,
+  Badge,
+  Button,
+  EtiquetaSeccion,
+  Input,
+  Label,
+  Select,
+} from "../components/ui";
+import {
+  fechaActualLegible,
+  formatearFecha,
+  getInicial,
+  getNombreEspecialidad,
+} from "../utils/helpers";
+import type {
+  Cita,
+  DiaSemana,
+  Especialidad,
+  FormularioPerfilBarbero,
+  FranjaHoraria,
+  HistorialCita,
+  PanelBarberoId,
+} from "../types";
 
 interface NavItem {
   panel: PanelBarberoId;
@@ -12,17 +32,31 @@ interface NavItem {
 }
 
 const navBarbero: NavItem[] = [
-  { panel: 'agenda', icono: 'bi-calendar-event', label: 'Agenda' },
-  { panel: 'citas', icono: 'bi-list-check', label: 'Gestionar citas' },
-  { panel: 'horario', icono: 'bi-clock', label: 'Horario' },
-  { panel: 'historial', icono: 'bi-clock-history', label: 'Historial' },
-  { panel: 'perfil', icono: 'bi-person', label: 'Perfil' },
+  { panel: "agenda", icono: "bi-calendar-event", label: "Agenda" },
+  { panel: "citas", icono: "bi-list-check", label: "Gestionar citas" },
+  { panel: "horario", icono: "bi-clock", label: "Horario" },
+  { panel: "historial", icono: "bi-clock-history", label: "Historial" },
+  { panel: "perfil", icono: "bi-person", label: "Perfil" },
 ];
 
-const diasSemana: DiaSemana[] = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const diasSemana: DiaSemana[] = [
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+  "Domingo",
+];
 
 export default function DashboardBarbero() {
-  const { barberoActual, panelBarberoActivo, navegarBarberoA, logout } = useApp();
+  const {
+    barberoActual,
+    panelBarberoActivo,
+    navegarBarberoA,
+    logout,
+    especialidades,
+  } = useApp();
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
 
   if (!barberoActual) return null;
@@ -34,31 +68,56 @@ export default function DashboardBarbero() {
 
   return (
     <>
-      <div className={`overlay-sidebar ${sidebarAbierto ? 'activo' : ''}`} onClick={() => setSidebarAbierto(false)} />
+      <div
+        className={`overlay-sidebar ${sidebarAbierto ? "activo" : ""}`}
+        onClick={() => setSidebarAbierto(false)}
+      />
 
-      <aside className={`sidebar ${sidebarAbierto ? 'abierto' : ''}`}>
+      <aside className={`sidebar ${sidebarAbierto ? "abierto" : ""}`}>
         <div className="sidebar-header">
-          <a className="navbar-brand" href="/">Style<span>Up</span></a>
+          <a className="navbar-brand" href="/">
+            Style<span>Up</span>
+          </a>
         </div>
 
         <div className="sidebar-usuario">
           <Avatar inicial={getInicial(barberoActual.nombre)} />
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: '.88rem', fontWeight: 500, color: 'var(--claro)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ overflow: "hidden" }}>
+            <div
+              style={{
+                fontSize: ".88rem",
+                fontWeight: 500,
+                color: "var(--claro)",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               {barberoActual.nombre} {barberoActual.apellido}
             </div>
-            <div style={{ fontSize: '.72rem', color: 'var(--gris)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {getNombreEspecialidad(barberoActual.id_especialidad)}
+            <div
+              style={{
+                fontSize: ".72rem",
+                color: "var(--gris)",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {getNombreEspecialidad(
+                barberoActual.id_especialidad,
+                especialidades,
+              )}
             </div>
           </div>
         </div>
 
         <nav className="sidebar-nav">
           <div className="nav-seccion-label">Barbero</div>
-          {navBarbero.map(item => (
+          {navBarbero.map((item) => (
             <div
               key={item.panel}
-              className={`nav-item-dash ${panelBarberoActivo === item.panel ? 'activo' : ''}`}
+              className={`nav-item-dash ${panelBarberoActivo === item.panel ? "activo" : ""}`}
               onClick={() => handleNav(item.panel)}
             >
               <i className={`bi ${item.icono}`} />
@@ -77,95 +136,151 @@ export default function DashboardBarbero() {
       <main className="main-content">
         <div className="topbar">
           <div className="d-flex align-items-center gap-3">
-            <button className="btn-menu-movil" onClick={() => setSidebarAbierto(true)}>
+            <button
+              className="btn-menu-movil"
+              onClick={() => setSidebarAbierto(true)}
+            >
               <i className="bi bi-list" />
             </button>
             <div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', fontWeight: 700, color: 'var(--claro)' }}>
-                Panel de <span style={{ color: 'var(--dorado)', fontStyle: 'italic' }}>barbero</span>
+              <div
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "1.5rem",
+                  fontWeight: 700,
+                  color: "var(--claro)",
+                }}
+              >
+                Panel de{" "}
+                <span style={{ color: "var(--dorado)", fontStyle: "italic" }}>
+                  barbero
+                </span>
               </div>
-              <div style={{ fontSize: '.78rem', color: 'var(--gris)' }}>{fechaActualLegible()}</div>
+              <div style={{ fontSize: ".78rem", color: "var(--gris)" }}>
+                {fechaActualLegible()}
+              </div>
             </div>
           </div>
-          <Avatar inicial={getInicial(barberoActual.nombre)} onClick={() => navegarBarberoA('perfil')} />
+          <Avatar
+            inicial={getInicial(barberoActual.nombre)}
+            onClick={() => navegarBarberoA("perfil")}
+          />
         </div>
 
-        {panelBarberoActivo === 'agenda' && <PanelAgenda />}
-        {panelBarberoActivo === 'citas' && <PanelCitasBarbero />}
-        {panelBarberoActivo === 'horario' && <PanelHorario />}
-        {panelBarberoActivo === 'historial' && <PanelHistorialBarbero />}
-        {panelBarberoActivo === 'perfil' && <PanelPerfilBarbero />}
+        {panelBarberoActivo === "agenda" && <PanelAgenda />}
+        {panelBarberoActivo === "citas" && <PanelCitasBarbero />}
+        {panelBarberoActivo === "horario" && <PanelHorario />}
+        {panelBarberoActivo === "historial" && <PanelHistorialBarbero />}
+        {panelBarberoActivo === "perfil" && <PanelPerfilBarbero />}
       </main>
     </>
   );
 }
 
 function PanelAgenda() {
-  const { todasLasCitas, navegarBarberoA } = useApp();
-  const hoy = new Date().toISOString().split('T')[0];
+  const { todasLasCitas, navegarBarberoA, especialidades } = useApp();
+  const hoy = new Date().toISOString().split("T")[0];
   const citasHoy = useMemo(
-    () => todasLasCitas.filter(c => c.fecha === hoy).sort((a, b) => a.hora.localeCompare(b.hora)),
-    [todasLasCitas, hoy]
+    () =>
+      todasLasCitas
+        .filter((c) => c.fecha === hoy)
+        .sort((a, b) => a.hora.localeCompare(b.hora)),
+    [todasLasCitas, hoy],
   );
   const proximas = useMemo(
-    () => todasLasCitas.filter(c => c.fecha >= hoy).sort(ordenarPorFechaHora).slice(0, 8),
-    [todasLasCitas, hoy]
+    () =>
+      todasLasCitas
+        .filter((c) => c.fecha >= hoy)
+        .sort(ordenarPorFechaHora)
+        .slice(0, 8),
+    [todasLasCitas, hoy],
   );
 
   return (
     <div className="row g-4">
       <div className="col-12">
-        <div className="tarjeta-servicio" style={{ height: 'auto' }}>
+        <div className="tarjeta-servicio" style={{ height: "auto" }}>
           <div className="d-flex justify-content-between align-items-center mb-3">
             <EtiquetaSeccion>Citas de hoy</EtiquetaSeccion>
-            <Button variante="nav" onClick={() => navegarBarberoA('citas')}>Ver todas</Button>
+            <Button variante="nav" onClick={() => navegarBarberoA("citas")}>
+              Ver todas
+            </Button>
           </div>
-          <AgendaTimeline citas={citasHoy} />
+          <AgendaTimeline citas={citasHoy} especialidades={especialidades} />
         </div>
       </div>
 
       <div className="col-lg-4">
-        <StatBarbero icono="bi-calendar2-check" label="Hoy" valor={String(citasHoy.length)} />
+        <StatBarbero
+          icono="bi-calendar2-check"
+          label="Hoy"
+          valor={String(citasHoy.length)}
+        />
       </div>
       <div className="col-lg-4">
-        <StatBarbero icono="bi-hourglass-split" label="Pendientes" valor={String(todasLasCitas.filter(c => c.estado === 'Pendiente').length)} />
+        <StatBarbero
+          icono="bi-hourglass-split"
+          label="Pendientes"
+          valor={String(
+            todasLasCitas.filter((c) => c.estado === "Pendiente").length,
+          )}
+        />
       </div>
       <div className="col-lg-4">
-        <StatBarbero icono="bi-check-circle" label="Confirmadas" valor={String(todasLasCitas.filter(c => c.estado === 'Confirmada').length)} />
+        <StatBarbero
+          icono="bi-check-circle"
+          label="Confirmadas"
+          valor={String(
+            todasLasCitas.filter((c) => c.estado === "Confirmada").length,
+          )}
+        />
       </div>
 
       <div className="col-12">
-        <TablaCitas citas={proximas} titulo="Próximas citas" />
+        <TablaCitas
+          citas={proximas}
+          titulo="Proximas citas"
+          especialidades={especialidades}
+        />
       </div>
     </div>
   );
 }
 
 function PanelCitasBarbero() {
-  const { todasLasCitas, actualizarEstadoCita } = useApp();
-  const [filtro, setFiltro] = useState<'todas' | 'hoy' | 'semana'>('todas');
+  const { todasLasCitas, actualizarEstadoCita, especialidades } = useApp();
+  const [filtro, setFiltro] = useState<"todas" | "hoy" | "semana">("todas");
   const hoy = new Date();
-  const hoyISO = hoy.toISOString().split('T')[0];
+  const hoyISO = hoy.toISOString().split("T")[0];
   const finSemana = new Date(hoy);
   finSemana.setDate(hoy.getDate() + 7);
-  const finSemanaISO = finSemana.toISOString().split('T')[0];
+  const finSemanaISO = finSemana.toISOString().split("T")[0];
 
   const citasFiltradas = todasLasCitas
-    .filter(c => {
-      if (filtro === 'hoy') return c.fecha === hoyISO;
-      if (filtro === 'semana') return c.fecha >= hoyISO && c.fecha <= finSemanaISO;
+    .filter((c) => {
+      if (filtro === "hoy") return c.fecha === hoyISO;
+      if (filtro === "semana")
+        return c.fecha >= hoyISO && c.fecha <= finSemanaISO;
       return true;
     })
     .sort(ordenarPorFechaHora);
 
   return (
-    <div className="tarjeta-servicio" style={{ height: 'auto' }}>
+    <div className="tarjeta-servicio" style={{ height: "auto" }}>
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <EtiquetaSeccion>Gestión de citas</EtiquetaSeccion>
         <div className="filtro-citas">
-          {(['todas', 'hoy', 'semana'] as const).map(opcion => (
-            <button key={opcion} className={filtro === opcion ? 'activo' : ''} onClick={() => setFiltro(opcion)}>
-              {opcion === 'todas' ? 'Todas' : opcion === 'hoy' ? 'Hoy' : 'Semana'}
+          {(["todas", "hoy", "semana"] as const).map((opcion) => (
+            <button
+              key={opcion}
+              className={filtro === opcion ? "activo" : ""}
+              onClick={() => setFiltro(opcion)}
+            >
+              {opcion === "todas"
+                ? "Todas"
+                : opcion === "hoy"
+                  ? "Hoy"
+                  : "Semana"}
             </button>
           ))}
         </div>
@@ -183,21 +298,50 @@ function PanelCitasBarbero() {
         </thead>
         <tbody>
           {citasFiltradas.length === 0 ? (
-            <tr><td colSpan={5} style={{ color: 'var(--gris)', textAlign: 'center', padding: '1.5rem' }}>No hay citas para este filtro</td></tr>
-          ) : citasFiltradas.map(cita => (
-            <tr key={cita.id_cita}>
-              <td>{getNombreEspecialidad(cita.id_especialidad)}</td>
-              <td>{formatearFecha(cita.fecha)}</td>
-              <td>{cita.hora}</td>
-              <td><Badge estado={cita.estado} /></td>
-              <td>
-                <div className="acciones-cita">
-                  <button onClick={() => actualizarEstadoCita(cita.id_cita, 'Completada')}>Completar</button>
-                  <button onClick={() => actualizarEstadoCita(cita.id_cita, 'Cancelada')}>Cancelar</button>
-                </div>
+            <tr>
+              <td
+                colSpan={5}
+                style={{
+                  color: "var(--gris)",
+                  textAlign: "center",
+                  padding: "1.5rem",
+                }}
+              >
+                No hay citas para este filtro
               </td>
             </tr>
-          ))}
+          ) : (
+            citasFiltradas.map((cita) => (
+              <tr key={cita.id_cita}>
+                <td>
+                  {getNombreEspecialidad(cita.id_especialidad, especialidades)}
+                </td>
+                <td>{formatearFecha(cita.fecha)}</td>
+                <td>{cita.hora}</td>
+                <td>
+                  <Badge estado={cita.estado} />
+                </td>
+                <td>
+                  <div className="acciones-cita">
+                    <button
+                      onClick={() =>
+                        actualizarEstadoCita(cita.id_cita, "Completada")
+                      }
+                    >
+                      Completar
+                    </button>
+                    <button
+                      onClick={() =>
+                        actualizarEstadoCita(cita.id_cita, "Cancelada")
+                      }
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
@@ -206,81 +350,132 @@ function PanelCitasBarbero() {
 
 function PanelHorario() {
   const { barberoActual, actualizarHorarioBarbero } = useApp();
-  const [horario, setHorario] = useState<FranjaHoraria[]>(() => barberoActual?.horario ?? []);
+  const [horario, setHorario] = useState<FranjaHoraria[]>(
+    () => barberoActual?.horario ?? [],
+  );
   const [exito, setExito] = useState(false);
+  const [guardando, setGuardando] = useState(false);
 
-  const actualizarDia = (dia: DiaSemana, campo: 'hora_inicio' | 'hora_fin', valor: string) => {
-    setHorario(prev => {
-      const existe = prev.some(f => f.dia === dia);
-      const base = existe ? prev : [...prev, { dia, hora_inicio: '08:00', hora_fin: '17:00' }];
-      return base.map(f => f.dia === dia ? { ...f, [campo]: valor } : f);
+  useEffect(() => {
+    setHorario(barberoActual?.horario ?? []);
+  }, [barberoActual?.horario]);
+
+  const actualizarDia = (
+    dia: DiaSemana,
+    campo: "hora_inicio" | "hora_fin",
+    valor: string,
+  ) => {
+    setHorario((prev) => {
+      const existe = prev.some((f) => f.dia === dia);
+      const base = existe
+        ? prev
+        : [...prev, { dia, hora_inicio: "08:00", hora_fin: "17:00" }];
+      return base.map((f) => (f.dia === dia ? { ...f, [campo]: valor } : f));
     });
   };
 
   const toggleDia = (dia: DiaSemana) => {
-    setHorario(prev =>
-      prev.some(f => f.dia === dia)
-        ? prev.filter(f => f.dia !== dia)
-        : [...prev, { dia, hora_inicio: '08:00', hora_fin: '17:00' }]
+    setHorario((prev) =>
+      prev.some((f) => f.dia === dia)
+        ? prev.filter((f) => f.dia !== dia)
+        : [...prev, { dia, hora_inicio: "08:00", hora_fin: "17:00" }],
     );
   };
 
-  const guardar = () => {
-    actualizarHorarioBarbero(horario);
-    setExito(true);
-    setTimeout(() => setExito(false), 2500);
+  const guardar = async () => {
+    setGuardando(true);
+    try {
+      await actualizarHorarioBarbero(horario);
+      setExito(true);
+      setTimeout(() => setExito(false), 2500);
+    } finally {
+      setGuardando(false);
+    }
   };
 
   return (
-    <div className="tarjeta-servicio" style={{ height: 'auto' }}>
+    <div className="tarjeta-servicio" style={{ height: "auto" }}>
       <EtiquetaSeccion>Horario registrado</EtiquetaSeccion>
       <div className="horario-grid">
-        {diasSemana.map(dia => {
-          const franja = horario.find(f => f.dia === dia);
+        {diasSemana.map((dia) => {
+          const franja = horario.find((f) => f.dia === dia);
           return (
-            <div key={dia} className={`horario-dia ${franja ? 'activo' : ''}`}>
+            <div key={dia} className={`horario-dia ${franja ? "activo" : ""}`}>
               <label>
-                <input type="checkbox" checked={Boolean(franja)} onChange={() => toggleDia(dia)} />
+                <input
+                  type="checkbox"
+                  checked={Boolean(franja)}
+                  onChange={() => toggleDia(dia)}
+                />
                 {dia}
               </label>
-              <input type="time" value={franja?.hora_inicio ?? '08:00'} disabled={!franja} onChange={e => actualizarDia(dia, 'hora_inicio', e.target.value)} />
-              <input type="time" value={franja?.hora_fin ?? '17:00'} disabled={!franja} onChange={e => actualizarDia(dia, 'hora_fin', e.target.value)} />
+              <input
+                type="time"
+                value={franja?.hora_inicio ?? "08:00"}
+                disabled={!franja}
+                onChange={(e) =>
+                  actualizarDia(dia, "hora_inicio", e.target.value)
+                }
+              />
+              <input
+                type="time"
+                value={franja?.hora_fin ?? "17:00"}
+                disabled={!franja}
+                onChange={(e) => actualizarDia(dia, "hora_fin", e.target.value)}
+              />
             </div>
           );
         })}
       </div>
-      <Button className="mt-3" onClick={guardar}>
-        <i className="bi bi-check2 me-2" />Guardar horario
+      <Button className="mt-3" onClick={guardar} disabled={guardando}>
+        <i className="bi bi-check2 me-2" />
+        {guardando ? "Guardando..." : "Guardar horario"}
       </Button>
-      {exito && <div className="su-alerta-ok">Horario actualizado correctamente.</div>}
+      {exito && (
+        <div className="su-alerta-ok">Horario actualizado correctamente.</div>
+      )}
     </div>
   );
 }
 
 function PanelHistorialBarbero() {
-  const { historialBarbero } = useApp();
+  const { historialBarbero, especialidades } = useApp();
   return (
     <TablaCitas
       citas={historialBarbero}
       titulo="Historial de citas atendidas"
       vacio="No tienes historial de citas atendidas"
+      especialidades={especialidades}
     />
   );
 }
 
 function PanelPerfilBarbero() {
-  const { barberoActual, actualizarPerfilBarbero, historialBarbero } = useApp();
+  const {
+    barberoActual,
+    actualizarPerfilBarbero,
+    historialBarbero,
+    especialidades,
+  } = useApp();
   const [exito, setExito] = useState(false);
   const [form, setForm] = useState<FormularioPerfilBarbero>(() => ({
-    nombre_completo: `${barberoActual?.nombre ?? ''} ${barberoActual?.apellido ?? ''}`.trim(),
-    correo: barberoActual?.correo ?? '',
-    telefono: barberoActual?.telefono ?? '',
-    cedula_barbero: barberoActual?.cedula_barbero ?? '',
-    id_especialidad: barberoActual?.id_especialidad ?? '',
+    nombre_completo:
+      `${barberoActual?.nombre ?? ""} ${barberoActual?.apellido ?? ""}`.trim(),
+    correo: barberoActual?.correo ?? "",
+    telefono: barberoActual?.telefono ?? "",
+    cedula_barbero: barberoActual?.cedula_barbero ?? "",
+    id_especialidad: barberoActual?.id_especialidad ?? 0,
   }));
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    if (name === "id_especialidad") {
+      setForm((prev) => ({ ...prev, id_especialidad: Number(value) }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const guardar = () => {
@@ -294,74 +489,141 @@ function PanelPerfilBarbero() {
   return (
     <div className="row g-4">
       <div className="col-lg-4">
-        <div className="tarjeta-servicio text-center" style={{ height: 'auto' }}>
-          <Avatar inicial={getInicial(barberoActual.nombre)} size={80} fontSize="2rem" style={{ margin: '0 auto 1rem' }} />
-          <h5 style={{ fontFamily: "'Playfair Display', serif", color: 'var(--claro)' }}>
+        <div
+          className="tarjeta-servicio text-center"
+          style={{ height: "auto" }}
+        >
+          <Avatar
+            inicial={getInicial(barberoActual.nombre)}
+            size={80}
+            fontSize="2rem"
+            style={{ margin: "0 auto 1rem" }}
+          />
+          <h5
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              color: "var(--claro)",
+            }}
+          >
             {barberoActual.nombre} {barberoActual.apellido}
           </h5>
-          <p style={{ fontSize: '.78rem', color: 'var(--gris)', marginTop: '.3rem' }}>
-            {getNombreEspecialidad(barberoActual.id_especialidad)}
+          <p
+            style={{
+              fontSize: ".78rem",
+              color: "var(--gris)",
+              marginTop: ".3rem",
+            }}
+          >
+            {getNombreEspecialidad(
+              barberoActual.id_especialidad,
+              especialidades,
+            )}
           </p>
           <div className="perfil-stat">
             <span>Citas atendidas</span>
-            <strong>{historialBarbero.filter(h => h.estado === 'Completada').length}</strong>
+            <strong>
+              {historialBarbero.filter((h) => h.estado === "Completada").length}
+            </strong>
           </div>
         </div>
       </div>
 
       <div className="col-lg-8">
-        <div className="tarjeta-servicio" style={{ height: 'auto' }}>
+        <div className="tarjeta-servicio" style={{ height: "auto" }}>
           <EtiquetaSeccion>Perfil profesional</EtiquetaSeccion>
           <div className="row g-3">
             <div className="col-md-6">
               <Label>Nombre completo</Label>
-              <Input name="nombre_completo" value={form.nombre_completo} onChange={handleChange} />
+              <Input
+                name="nombre_completo"
+                value={form.nombre_completo}
+                onChange={handleChange}
+              />
             </div>
             <div className="col-md-6">
               <Label>Especialidad</Label>
-              <Select name="id_especialidad" value={form.id_especialidad} onChange={handleChange}>
-                {especialidades.map(e => <option key={e.id_especialidad} value={e.id_especialidad}>{e.especialidad}</option>)}
+              <Select
+                name="id_especialidad"
+                value={form.id_especialidad || ""}
+                onChange={handleChange}
+              >
+                {especialidades.map((e) => (
+                  <option key={e.id_especialidad} value={e.id_especialidad}>
+                    {e.especialidad}
+                  </option>
+                ))}
               </Select>
             </div>
             <div className="col-md-6">
               <Label>Correo</Label>
-              <Input type="email" name="correo" value={form.correo} onChange={handleChange} />
+              <Input
+                type="email"
+                name="correo"
+                value={form.correo}
+                onChange={handleChange}
+              />
             </div>
             <div className="col-md-6">
               <Label>Teléfono</Label>
-              <Input name="telefono" value={form.telefono} onChange={handleChange} />
+              <Input
+                name="telefono"
+                value={form.telefono}
+                onChange={handleChange}
+              />
             </div>
             <div className="col-md-6">
               <Label>Cédula</Label>
-              <Input name="cedula_barbero" value={form.cedula_barbero} disabled onChange={handleChange} />
+              <Input
+                name="cedula_barbero"
+                value={form.cedula_barbero}
+                disabled
+                onChange={handleChange}
+              />
             </div>
             <div className="col-12">
               <Button onClick={guardar}>
-                <i className="bi bi-check2 me-2" />Guardar perfil
+                <i className="bi bi-check2 me-2" />
+                Guardar perfil
               </Button>
             </div>
           </div>
-          {exito && <div className="su-alerta-ok">Perfil actualizado correctamente.</div>}
+          {exito && (
+            <div className="su-alerta-ok">
+              Perfil actualizado correctamente.
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function AgendaTimeline({ citas }: { citas: Cita[] }) {
+function AgendaTimeline({
+  citas,
+  especialidades,
+}: {
+  citas: Cita[];
+  especialidades: Especialidad[];
+}) {
   if (citas.length === 0) {
-    return <div className="agenda-vacia">No tienes citas programadas para hoy.</div>;
+    return (
+      <div className="agenda-vacia">No tienes citas programadas para hoy.</div>
+    );
   }
 
   return (
     <div className="agenda-timeline">
-      {citas.map(cita => (
+      {citas.map((cita) => (
         <div key={cita.id_cita} className="agenda-item">
           <div className="agenda-hora">{cita.hora}</div>
           <div className="agenda-punto" />
           <div className="agenda-card">
-            <strong>{getNombreEspecialidad(cita.id_especialidad)}</strong>
-            <span><Badge estado={cita.estado} /></span>
+            <strong>
+              {getNombreEspecialidad(cita.id_especialidad, especialidades)}
+            </strong>
+            <span>
+              <Badge estado={cita.estado} />
+            </span>
           </div>
         </div>
       ))}
@@ -369,13 +631,19 @@ function AgendaTimeline({ citas }: { citas: Cita[] }) {
   );
 }
 
-function TablaCitas({ citas, titulo, vacio = 'No hay citas para mostrar' }: {
+function TablaCitas({
+  citas,
+  titulo,
+  vacio = "No hay citas para mostrar",
+  especialidades,
+}: {
   citas: Array<Cita | HistorialCita>;
   titulo: string;
   vacio?: string;
+  especialidades: Especialidad[];
 }) {
   return (
-    <div className="tarjeta-servicio" style={{ height: 'auto' }}>
+    <div className="tarjeta-servicio" style={{ height: "auto" }}>
       <EtiquetaSeccion>{titulo}</EtiquetaSeccion>
       <table className="tabla-citas">
         <thead>
@@ -388,24 +656,49 @@ function TablaCitas({ citas, titulo, vacio = 'No hay citas para mostrar' }: {
         </thead>
         <tbody>
           {citas.length === 0 ? (
-            <tr><td colSpan={4} style={{ color: 'var(--gris)', textAlign: 'center', padding: '1.5rem' }}>{vacio}</td></tr>
-          ) : citas.map(cita => (
-            <tr key={cita.id_cita}>
-              <td>{getNombreEspecialidad(cita.id_especialidad)}</td>
-              <td>{formatearFecha(cita.fecha)}</td>
-              <td>{'hora' in cita ? cita.hora : '-'}</td>
-              <td><Badge estado={cita.estado} /></td>
+            <tr>
+              <td
+                colSpan={4}
+                style={{
+                  color: "var(--gris)",
+                  textAlign: "center",
+                  padding: "1.5rem",
+                }}
+              >
+                {vacio}
+              </td>
             </tr>
-          ))}
+          ) : (
+            citas.map((cita) => (
+              <tr key={cita.id_cita}>
+                <td>
+                  {getNombreEspecialidad(cita.id_especialidad, especialidades)}
+                </td>
+                <td>{formatearFecha(cita.fecha)}</td>
+                <td>{"hora" in cita ? cita.hora : "-"}</td>
+                <td>
+                  <Badge estado={cita.estado} />
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
   );
 }
 
-function StatBarbero({ icono, label, valor }: { icono: string; label: string; valor: string }) {
+function StatBarbero({
+  icono,
+  label,
+  valor,
+}: {
+  icono: string;
+  label: string;
+  valor: string;
+}) {
   return (
-    <div className="tarjeta-servicio stat-barbero" style={{ height: 'auto' }}>
+    <div className="tarjeta-servicio stat-barbero" style={{ height: "auto" }}>
       <i className={`bi ${icono}`} />
       <span>{label}</span>
       <strong>{valor}</strong>

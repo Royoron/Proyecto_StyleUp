@@ -449,6 +449,33 @@ footer .derechos {
   font-size: .84rem;
 }
 
+.su-toast {
+  position: fixed;
+  top: 1.2rem;
+  right: 1.2rem;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .75rem 1rem;
+  border-radius: 4px;
+  font-size: .84rem;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+}
+
+.su-toast.error {
+  color: #f2d1d1;
+  border: 1px solid rgba(220, 80, 80, .4);
+  background: rgba(220, 80, 80, .12);
+}
+
+.su-toast.ok {
+  color: #cfe8db;
+  border: 1px solid rgba(80, 180, 120, .35);
+  background: rgba(80, 180, 120, .12);
+}
+
 .su-demo-hint {
   color: var(--dorado);
   font-size: .78rem;

@@ -3,43 +3,55 @@
 //  Maneja login de cliente y barbero con selector de rol
 // ══════════════════════════════════════════════════════════
 
-import { useState } from 'react';
-import { useApp } from '../../context/AppContext';
-import type { RolUsuario } from '../../types';
+import { useState } from "react";
+import { useApp } from "../../context/AppContext";
+import type { RolUsuario } from "../../types";
 
 interface LoginModalProps {
-  onClose:          () => void;
-  onAbrirRegistro:  (rol: RolUsuario) => void;
-  onLoginExitoso:   (rol: RolUsuario) => void;
+  onClose: () => void;
+  onAbrirRegistro: () => void;
+  onLoginExitoso: (rol: RolUsuario) => void;
 }
 
-export default function LoginModal({ onClose, onAbrirRegistro, onLoginExitoso }: LoginModalProps) {
+export default function LoginModal({
+  onClose,
+  onAbrirRegistro,
+  onLoginExitoso,
+}: LoginModalProps) {
   const { login } = useApp();
-  const [rol,      setRol]      = useState<RolUsuario>('cliente');
-  const [correo,   setCorreo]   = useState('');
-  const [password, setPassword] = useState('');
-  const [error,    setError]    = useState('');
+  const rol: RolUsuario = "cliente";
+  const [cedula, setCedula] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
   const handleSubmit = async () => {
-    if (!correo || !password) { setError('Completa todos los campos.'); return; }
+    if (!cedula || !password) {
+      setError("Completa todos los campos.");
+      return;
+    }
     setCargando(true);
-    await new Promise(r => setTimeout(r, 600)); // simula latencia
-    const ok = login(correo, password, rol);
+    const resultado = await login(cedula, password, rol);
     setCargando(false);
-    if (!ok) { setError('Credenciales incorrectas. Verifica e intenta de nuevo.'); return; }
+    if (!resultado.ok) {
+      setError(
+        resultado.mensaje ??
+          "Credenciales incorrectas. Verifica e intenta de nuevo.",
+      );
+      return;
+    }
     onLoginExitoso(rol);
     onClose();
   };
 
-
   return (
     <div className="su-modal-overlay" onClick={onClose}>
-      <div className="su-modal" onClick={e => e.stopPropagation()}>
-
+      <div className="su-modal" onClick={(e) => e.stopPropagation()}>
         {/* Encabezado */}
         <div className="su-modal-header">
-          <div className="su-modal-logo">Style<span>Up</span></div>
+          <div className="su-modal-logo">
+            Style<span>Up</span>
+          </div>
           <button className="su-modal-close" onClick={onClose}>
             <i className="bi bi-x-lg" />
           </button>
@@ -49,32 +61,18 @@ export default function LoginModal({ onClose, onAbrirRegistro, onLoginExitoso }:
           <h4 className="su-modal-titulo">Iniciar sesión</h4>
           <p className="su-modal-sub">Accede a tu espacio personal</p>
 
-          {/* Selector de rol */}
-          <div className="rol-selector">
-            <button
-              className={`rol-btn ${rol === 'cliente' ? 'activo' : ''}`}
-              onClick={() => { setRol('cliente'); setError(''); }}
-            >
-              <i className="bi bi-person-fill" /> Cliente
-            </button>
-            <button
-              className={`rol-btn ${rol === 'barbero' ? 'activo' : ''}`}
-              onClick={() => { setRol('barbero'); setError(''); }}
-            >
-              <i className="bi bi-scissors" /> Barbero
-            </button>
-          </div>
-
           {/* Campos */}
           <div className="su-campo-grupo">
-            <label className="etiqueta-campo">Correo electrónico</label>
+            <label className="etiqueta-campo">Cedula</label>
             <input
               className="campo-formulario"
-              type="email"
-              placeholder="tu@correo.com"
-              value={correo}
-              onChange={e => { setCorreo(e.target.value); setError(''); }}
-              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              placeholder="Tu numero de cedula"
+              value={cedula}
+              onChange={(e) => {
+                setCedula(e.target.value);
+                setError("");
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             />
           </div>
 
@@ -85,8 +83,11 @@ export default function LoginModal({ onClose, onAbrirRegistro, onLoginExitoso }:
               type="password"
               placeholder="••••••••"
               value={password}
-              onChange={e => { setPassword(e.target.value); setError(''); }}
-              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError("");
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             />
           </div>
 
@@ -94,7 +95,8 @@ export default function LoginModal({ onClose, onAbrirRegistro, onLoginExitoso }:
 
           {error && (
             <div className="su-alerta-error">
-              <i className="bi bi-exclamation-circle me-2" />{error}
+              <i className="bi bi-exclamation-circle me-2" />
+              {error}
             </div>
           )}
 
@@ -104,17 +106,30 @@ export default function LoginModal({ onClose, onAbrirRegistro, onLoginExitoso }:
             onClick={handleSubmit}
             disabled={cargando}
           >
-            {cargando
-              ? <><i className="bi bi-arrow-repeat su-spin me-2" />Verificando...</>
-              : <><i className="bi bi-box-arrow-in-right me-2" />Ingresar</>
-            }
+            {cargando ? (
+              <>
+                <i className="bi bi-arrow-repeat su-spin me-2" />
+                Verificando...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-box-arrow-in-right me-2" />
+                Ingresar
+              </>
+            )}
           </button>
 
           {/* Pie */}
           <p className="su-modal-pie">
-            ¿No tienes cuenta?{' '}
-            <span className="su-link" onClick={() => { onClose(); onAbrirRegistro(rol); }}>
-              Regístrate como {rol}
+            ¿No tienes cuenta?{" "}
+            <span
+              className="su-link"
+              onClick={() => {
+                onClose();
+                onAbrirRegistro();
+              }}
+            >
+              Regístrate como cliente
             </span>
           </p>
         </div>
