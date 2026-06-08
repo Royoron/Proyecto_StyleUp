@@ -20,4 +20,3 @@ citaRoutes.post("/", auth, validate(createCitaSchema), createCitaController);
 citaRoutes.post("/:id_cita/cancelar", auth, validate(cancelarCitaSchema), cancelarCitaController);
 citaRoutes.patch("/:id_cita/estado", auth, validate(actualizarEstadoCitaSchema), actualizarEstadoCitaController);
 citaRoutes.get("/", auth, validate(listarCitasPorDiaSchema), listarCitasPorDiaController);
-

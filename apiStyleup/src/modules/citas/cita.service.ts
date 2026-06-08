@@ -106,3 +106,10 @@ export async function listarCitasPorBarbero(cedula_barbero: string) {
     orderBy: [{ fecha: "asc" }, { hora: "asc" }],
   });
 }
+
+export async function listarCitasClientes(cedula_cliente : string){
+  return prisma.cita.findMany({
+    where: {cedula_cliente},
+    orderBy: [{fecha : "asc"}, {hora : "asc"}]
+  })
+}

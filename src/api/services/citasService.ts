@@ -69,3 +69,10 @@ export function actualizarEstadoCita(
     body: JSON.stringify({ estado }),
   }).then(mapCita);
 }
+
+export function listarCitasPorCliente(cedula_cliente: string) {
+  const query = new URLSearchParams({ cedula_cliente });
+  return request<CitaApi[]>(`/citas?${query.toString()}`).then((list) =>
+    list.map(mapCita),
+  );
+}

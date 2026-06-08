@@ -38,9 +38,10 @@ export const listarCitasPorDiaSchema = z.object({
     .object({
       fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
       cedula_barbero: cedulaSchema.optional(),
+      cedula_cliente: cedulaSchema.optional(),
     })
-    .refine((query) => query.fecha || query.cedula_barbero, {
-      message: "Debe enviar fecha o cedula_barbero",
+    .refine((query) => query.fecha || query.cedula_barbero || query.cedula_cliente, {
+      message: "Debe enviar fecha, cedula_barbero o cedula_cliente",
     }),
   body: z.any().optional(),
   params: z.any().optional(),

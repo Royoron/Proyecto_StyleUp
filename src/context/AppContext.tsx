@@ -194,10 +194,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const cargarCitasPorFecha = useCallback(async (fecha: string) => {
-    const listado = await citasService.listarCitasPorDia(fecha);
-    setCitas(listado);
-
+  const cargarBarberosDeCitas = useCallback(async (listado: Cita[]) => {
     const cedulas = Array.from(new Set(listado.map((c) => c.cedula_barbero)));
     if (!cedulas.length) return;
 
@@ -219,6 +216,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const listado = await citasService.listarCitasPorBarbero(cedula_barbero);
     setCitas(listado);
   }, []);
+
+  const cargarCitasCliente = useCallback(async (cedula_cliente: string) => {
+    const listado = await citasService.listarCitasPorCliente(cedula_cliente);
+    setCitas(listado);
+    await cargarBarberosDeCitas(listado);
+  }, [cargarBarberosDeCitas]);
 
   // ── AUTH ──────────────────────────────────────────────────
   const login = useCallback(
@@ -266,8 +269,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSessionMeta({ rol, cedula });
 
         if (rol === "cliente") {
-          const hoy = new Date().toISOString().split("T")[0];
-          await cargarCitasPorFecha(hoy);
+          const cliente = await clientesService.getClienteByCedula(cedula);
+          setCliente(cliente);
+          setBarberoActual(null);
+          setSesion({ usuario: cliente, rol: "cliente" });
+          await cargarCitasCliente(cedula);
         }
         setPanelActivo("inicio");
         setPanelBarberoActivo("agenda");
@@ -279,7 +285,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return { ok: false, mensaje };
       }
     },
-    [cargarCitasBarbero, cargarCitasPorFecha, notificarError],
+    [cargarCitasBarbero, cargarCitasCliente, notificarError],
   );
 
   const loginSuperAdmin = useCallback(
@@ -352,8 +358,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
 
         if (meta.rol === "cliente") {
-          const hoy = new Date().toISOString().split("T")[0];
-          await cargarCitasPorFecha(hoy);
+          const cliente = await clientesService.getClienteByCedula(meta.cedula);
+          setCliente(cliente);
+          setBarberoActual(null);
+          setSesion({ usuario: cliente, rol: "cliente" });
+          await cargarCitasCliente(meta.cedula);
         }
       } catch {
         clearTokens();
@@ -367,7 +376,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => {
       activo = false;
     };
-  }, [cargarCitasBarbero, cargarCitasPorFecha]);
+  }, [cargarCitasBarbero, cargarCitasCliente]);
 
   const logout = useCallback(async () => {
     const refreshToken = getRefreshToken();

@@ -6,6 +6,7 @@ import {
   createCitaTx,
   listarCitasPorBarbero,
   listarCitasPorDia,
+  listarCitasClientes,
 } from "./cita.service.js";
 
 export async function createCitaController(req: Request, res: Response, next: NextFunction) {
@@ -37,6 +38,11 @@ export async function actualizarEstadoCitaController(req: Request, res: Response
 
 export async function listarCitasPorDiaController(req: Request, res: Response, next: NextFunction) {
   try {
+    if (req.query.cedula_cliente) {
+      const citas = await listarCitasClientes(String(req.query.cedula_cliente));
+      return res.json(citas);
+    }
+
     if (req.query.cedula_barbero) {
       const citas = await listarCitasPorBarbero(String(req.query.cedula_barbero));
       return res.json(citas);

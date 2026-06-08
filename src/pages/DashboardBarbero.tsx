@@ -231,7 +231,9 @@ function PanelAgenda() {
           icono="bi-check-circle"
           label="Confirmadas"
           valor={String(
-            todasLasCitas.filter((c) => c.estado === "Confirmada").length,
+            todasLasCitas.filter(
+              (c) =>  c.estado === "Completada",
+            ).length,
           )}
         />
       </div>
