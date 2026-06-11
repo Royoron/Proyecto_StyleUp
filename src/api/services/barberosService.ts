@@ -40,9 +40,21 @@ export function deleteBarbero(cedula_barbero: string) {
   );
 }
 
-export function getBarberosDisponibles(id_especialidad: number) {
+/** Barbero con la franja horaria del día consultado (si se filtró por fecha) */
+export type BarberoDisponible = Barbero & {
+  horario_dia?: { hora_inicio: string; hora_fin: string };
+};
+
+export function getBarberosDisponibles(id_especialidad: number, fecha?: string) {
   const query = new URLSearchParams({
     id_especialidad: String(id_especialidad),
   });
-  return request<Barbero[]>(`/barberos/disponibles?${query.toString()}`);
+  if (fecha) query.set("fecha", fecha);
+  return request<BarberoDisponible[]>(
+    `/barberos/disponibles?${query.toString()}`,
+  );
+}
+
+export function listBarberos() {
+  return request<Barbero[]>("/barberos");
 }

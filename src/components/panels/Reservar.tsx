@@ -13,6 +13,7 @@ import {
   SeparadorDorado,
 } from "../ui";
 import { horasDisponibles } from "../../data/catalogo";
+import { citasService } from "../../api/services";
 import { esImagenValida, leerArchivoComoBase64 } from "../../utils/helpers";
 import type { FormularioCita } from "../../types";
 
@@ -23,6 +24,13 @@ const FORM_INICIAL: FormularioCita = {
   hora: "",
 };
 
+function hoyISO() {
+  const hoy = new Date();
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+  const dia = String(hoy.getDate()).padStart(2, "0");
+  return `${hoy.getFullYear()}-${mes}-${dia}`;
+}
+
 export default function PanelReservar() {
   const {
     agregarCita,
@@ -32,6 +40,8 @@ export default function PanelReservar() {
   } = useApp();
   const [form, setForm] = useState<FormularioCita>(FORM_INICIAL);
   const [exito, setExito] = useState(false);
+  const [errorForm, setErrorForm] = useState("");
+  const [horasOcupadas, setHorasOcupadas] = useState<string[]>([]);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const [nombreArchivo, setNombreArchivo] = useState("");
   const [errorImagen, setErrorImagen] = useState(false);
@@ -41,20 +51,65 @@ export default function PanelReservar() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
+    setErrorForm("");
     if (name === "id_especialidad") {
+      // Cambiar de servicio reinicia barbero y hora
       setForm((prev) => ({
         ...prev,
         id_especialidad: Number(value),
         cedula_barbero: "",
+        hora: "",
       }));
+    } else if (name === "fecha") {
+      // Cambiar de fecha reinicia barbero y hora (la disponibilidad cambia)
+      setForm((prev) => ({ ...prev, fecha: value, cedula_barbero: "", hora: "" }));
+    } else if (name === "cedula_barbero") {
+      setForm((prev) => ({ ...prev, cedula_barbero: value, hora: "" }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
 
+  // Barberos disponibles según servicio y día elegido
   useEffect(() => {
-    cargarBarberosDisponibles(form.id_especialidad);
-  }, [cargarBarberosDisponibles, form.id_especialidad]);
+    cargarBarberosDisponibles(form.id_especialidad, form.fecha || undefined);
+  }, [cargarBarberosDisponibles, form.id_especialidad, form.fecha]);
+
+  // Horas ya reservadas del barbero en la fecha elegida
+  useEffect(() => {
+    if (!form.cedula_barbero || !form.fecha) {
+      setHorasOcupadas([]);
+      return;
+    }
+
+    let activo = true;
+    citasService
+      .listarCitasPorBarberoYDia(form.cedula_barbero, form.fecha)
+      .then((citas) => {
+        if (activo) {
+          setHorasOcupadas(
+            citas.filter((c) => c.estado !== "Cancelada").map((c) => c.hora),
+          );
+        }
+      })
+      .catch(() => {
+        if (activo) setHorasOcupadas([]);
+      });
+
+    return () => {
+      activo = false;
+    };
+  }, [form.cedula_barbero, form.fecha]);
+
+  // Horas dentro de la franja del barbero, sin las ocupadas
+  const barberoElegido = barberosDisponibles.find(
+    (b) => b.cedula_barbero === form.cedula_barbero,
+  );
+  const franja = barberoElegido?.horario_dia;
+  const horasParaReservar = horasDisponibles.filter((h) => {
+    if (franja && (h < franja.hora_inicio || h >= franja.hora_fin)) return false;
+    return !horasOcupadas.includes(h);
+  });
 
   const handleImagen = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const archivo = e.target.files?.[0];
@@ -86,11 +141,27 @@ export default function PanelReservar() {
       !form.fecha ||
       !form.hora
     ) {
-      alert("Por favor completa todos los campos requeridos.");
+      setErrorForm("Por favor completa todos los campos requeridos.");
       return;
     }
+    if (form.fecha < hoyISO()) {
+      setErrorForm("La fecha no puede ser anterior a hoy.");
+      return;
+    }
+    if (franja && (form.hora < franja.hora_inicio || form.hora >= franja.hora_fin)) {
+      setErrorForm(
+        `El barbero atiende ese día de ${franja.hora_inicio} a ${franja.hora_fin}.`,
+      );
+      return;
+    }
+    if (horasOcupadas.includes(form.hora)) {
+      setErrorForm("Esa hora ya está reservada, elige otra.");
+      return;
+    }
+
     const ok = await agregarCita(form);
     if (!ok) return;
+    setErrorForm("");
     setExito(true);
     setForm(FORM_INICIAL);
     setPreviewSrc(null);
@@ -146,27 +217,6 @@ export default function PanelReservar() {
           </h5>
 
           <div className="row g-3">
-            {/* Barbero */}
-            <div className="col-md-6">
-              <Label>Barbero</Label>
-              <Select
-                name="cedula_barbero"
-                value={form.cedula_barbero}
-                onChange={handleChange}
-              >
-                <option value="">
-                  {form.id_especialidad
-                    ? "Seleccionar barbero"
-                    : "Selecciona especialidad primero"}
-                </option>
-                {barberosDisponibles.map((b) => (
-                  <option key={b.cedula_barbero} value={b.cedula_barbero}>
-                    {b.nombre} {b.apellido}
-                  </option>
-                ))}
-              </Select>
-            </div>
-
             {/* Especialidad */}
             <div className="col-md-6">
               <Label>Especialidad</Label>
@@ -191,16 +241,57 @@ export default function PanelReservar() {
                 type="date"
                 name="fecha"
                 value={form.fecha}
+                min={hoyISO()}
                 onChange={handleChange}
               />
             </div>
 
-            {/* Hora */}
+            {/* Barbero (solo los que atienden el día elegido) */}
+            <div className="col-md-6">
+              <Label>Barbero</Label>
+              <Select
+                name="cedula_barbero"
+                value={form.cedula_barbero}
+                onChange={handleChange}
+                disabled={!form.id_especialidad}
+              >
+                <option value="">
+                  {!form.id_especialidad
+                    ? "Selecciona especialidad primero"
+                    : barberosDisponibles.length
+                      ? "Seleccionar barbero"
+                      : form.fecha
+                        ? "Ningún barbero atiende ese día"
+                        : "No hay barberos para este servicio"}
+                </option>
+                {barberosDisponibles.map((b) => (
+                  <option key={b.cedula_barbero} value={b.cedula_barbero}>
+                    {b.nombre} {b.apellido}
+                    {b.horario_dia
+                      ? ` (${b.horario_dia.hora_inicio} - ${b.horario_dia.hora_fin})`
+                      : ""}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            {/* Hora (dentro de la franja del barbero, sin ocupadas) */}
             <div className="col-md-6">
               <Label>Hora</Label>
-              <Select name="hora" value={form.hora} onChange={handleChange}>
-                <option value="">Seleccionar hora</option>
-                {horasDisponibles.map((h) => (
+              <Select
+                name="hora"
+                value={form.hora}
+                onChange={handleChange}
+                disabled={!form.cedula_barbero || !form.fecha}
+              >
+                <option value="">
+                  {!form.cedula_barbero || !form.fecha
+                    ? "Selecciona barbero y fecha primero"
+                    : horasParaReservar.length
+                      ? "Seleccionar hora"
+                      : "Sin horas disponibles ese día"}
+                </option>
+                {horasParaReservar.map((h) => (
                   <option key={h} value={h}>
                     {h}
                   </option>
@@ -237,6 +328,16 @@ export default function PanelReservar() {
                 </div>
               )}
             </div>
+
+            {/* Error de validación */}
+            {errorForm && (
+              <div className="col-12">
+                <div className="su-alerta-error">
+                  <i className="bi bi-exclamation-circle me-2" />
+                  {errorForm}
+                </div>
+              </div>
+            )}
 
             {/* Botón confirmar */}
             <div className="col-12 mt-1">

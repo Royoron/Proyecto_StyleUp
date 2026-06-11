@@ -5,6 +5,7 @@ import {
   cancelarCita,
   createCitaTx,
   listarCitasPorBarbero,
+  listarCitasPorBarberoYDia,
   listarCitasPorDia,
   listarCitasClientes,
 } from "./cita.service.js";
@@ -40,6 +41,14 @@ export async function listarCitasPorDiaController(req: Request, res: Response, n
   try {
     if (req.query.cedula_cliente) {
       const citas = await listarCitasClientes(String(req.query.cedula_cliente));
+      return res.json(citas);
+    }
+
+    if (req.query.cedula_barbero && req.query.fecha) {
+      const citas = await listarCitasPorBarberoYDia(
+        String(req.query.cedula_barbero),
+        String(req.query.fecha),
+      );
       return res.json(citas);
     }
 

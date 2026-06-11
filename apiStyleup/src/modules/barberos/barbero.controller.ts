@@ -5,8 +5,18 @@ import {
   deleteBarbero,
   getBarberoByCedula,
   getBarberosDisponiblesByEspecialidad,
+  listBarberos,
   updateBarbero,
 } from "./barbero.service.js";
+
+export async function listBarberosController(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const barberos = await listBarberos();
+    return res.json(barberos);
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function createBarberoController(req: Request, res: Response, next: NextFunction) {
   try {
@@ -47,7 +57,11 @@ export async function deleteBarberoController(req: Request, res: Response, next:
 export async function disponiblesController(req: Request, res: Response, next: NextFunction) {
   try {
     const id_especialidad = Number(req.query.id_especialidad);
-    const result = await getBarberosDisponiblesByEspecialidad(id_especialidad);
+    const fecha = req.query.fecha ? String(req.query.fecha) : undefined;
+    const result = await getBarberosDisponiblesByEspecialidad(
+      id_especialidad,
+      fecha,
+    );
     return res.json(result);
   } catch (err) {
     next(err);

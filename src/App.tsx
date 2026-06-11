@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/Dashboard";
 import DashboardBarbero from "./pages/DashboardBarbero";
+import DashboardAdmin from "./pages/DashboardAdmin";
 
 function RutaProtegida({ children }: { children: React.ReactNode }) {
   const { sesion, sesionCargando } = useApp();
@@ -27,6 +28,16 @@ function RutaProtegida({ children }: { children: React.ReactNode }) {
   }
 
   return children;
+}
+
+function RutaAdmin() {
+  const { sesion, sesionCargando } = useApp();
+
+  if (sesionCargando) return null;
+
+  if (sesion?.rol === "superadmin") return <DashboardAdmin />;
+
+  return <AdminLogin />;
 }
 
 function DashboardPorRol() {
@@ -48,7 +59,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin" element={<RutaAdmin />} />
           <Route
             path="/dashboard"
             element={

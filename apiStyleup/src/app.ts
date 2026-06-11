@@ -7,6 +7,7 @@ import { barberoRoutes } from "./modules/barberos/barbero.routes.js";
 import { especialidadRoutes } from "./modules/especialidades/especialidad.routes.js";
 import { citaRoutes } from "./modules/citas/cita.routes.js";
 import { horarioRoutes } from "./modules/horarios/horario.routes.js";
+import { reporteRoutes } from "./modules/reportes/reporte.routes.js";
 
 export const app = express();
 
@@ -21,5 +22,6 @@ app.use("/barberos", barberoRoutes);
 app.use("/especialidades", especialidadRoutes);
 app.use("/citas", citaRoutes);
 app.use("/horarios", horarioRoutes);
+app.use("/reportes", reporteRoutes);
 
 app.use(errorHandler);

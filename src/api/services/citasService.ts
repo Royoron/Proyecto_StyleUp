@@ -70,6 +70,16 @@ export function actualizarEstadoCita(
   }).then(mapCita);
 }
 
+export function listarCitasPorBarberoYDia(
+  cedula_barbero: string,
+  fecha: string,
+) {
+  const query = new URLSearchParams({ cedula_barbero, fecha });
+  return request<CitaApi[]>(`/citas?${query.toString()}`).then((list) =>
+    list.map(mapCita),
+  );
+}
+
 export function listarCitasPorCliente(cedula_cliente: string) {
   const query = new URLSearchParams({ cedula_cliente });
   return request<CitaApi[]>(`/citas?${query.toString()}`).then((list) =>

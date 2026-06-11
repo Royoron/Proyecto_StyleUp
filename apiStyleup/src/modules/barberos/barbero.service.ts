@@ -99,16 +99,81 @@ export async function deleteBarbero(cedula_barbero: string) {
   });
   if (!current)
     throw new ApiError(StatusCodes.NOT_FOUND, "Barbero no encontrado");
-  await prisma.barbero.delete({ where: { cedula_barbero } });
+
+  const totalCitas = await prisma.cita.count({ where: { cedula_barbero } });
+  if (totalCitas > 0) {
+    throw new ApiError(
+      StatusCodes.CONFLICT,
+      "No se puede eliminar: el barbero tiene citas registradas",
+    );
+  }
+
+  await prisma.$transaction([
+    prisma.horarioBarbero.deleteMany({ where: { cedula_barbero } }),
+    prisma.barbero.delete({ where: { cedula_barbero } }),
+  ]);
   return { deleted: true };
+}
+
+export async function listBarberos() {
+  return prisma.barbero.findMany({
+    select: barberoPublicSelect,
+    orderBy: [{ nombre: "asc" }, { apellido: "asc" }],
+  });
 }
 
 export async function getBarberosDisponiblesByEspecialidad(
   id_especialidad: number,
+  fechaIso?: string,
 ) {
-  return prisma.barbero.findMany({
+  const barberos = await prisma.barbero.findMany({
     where: { id_especialidad },
     select: barberoPublicSelect,
     orderBy: [{ nombre: "asc" }, { apellido: "asc" }],
   });
+
+  if (!fechaIso) return barberos;
+
+  // Solo barberos con franja de horario el día de la semana solicitado.
+  // Las citas usan medianoche UTC y los horarios medianoche local
+  // (ver cita.service / horario.service).
+  const diaSemana = new Date(`${fechaIso}T00:00:00.000Z`).getUTCDay();
+
+  const horarios = await prisma.horarioBarbero.findMany({
+    where: { cedula_barbero: { in: barberos.map((b) => b.cedula_barbero) } },
+    select: {
+      cedula_barbero: true,
+      fecha: true,
+      hora_inicio: true,
+      hora_fin: true,
+    },
+  });
+
+  const franjasPorBarbero = new Map<
+    string,
+    { hora_inicio: string; hora_fin: string }
+  >();
+  for (const h of horarios) {
+    if (h.fecha.getDay() !== diaSemana) continue;
+    const actual = franjasPorBarbero.get(h.cedula_barbero);
+    if (!actual) {
+      franjasPorBarbero.set(h.cedula_barbero, {
+        hora_inicio: h.hora_inicio,
+        hora_fin: h.hora_fin,
+      });
+    } else {
+      // Si hay varias franjas se toma el rango más amplio
+      actual.hora_inicio =
+        h.hora_inicio < actual.hora_inicio ? h.hora_inicio : actual.hora_inicio;
+      actual.hora_fin =
+        h.hora_fin > actual.hora_fin ? h.hora_fin : actual.hora_fin;
+    }
+  }
+
+  return barberos
+    .filter((b) => franjasPorBarbero.has(b.cedula_barbero))
+    .map((b) => ({
+      ...b,
+      horario_dia: franjasPorBarbero.get(b.cedula_barbero)!,
+    }));
 }
