@@ -7,6 +7,7 @@ import {
   deleteBarberoController,
   disponiblesController,
   getBarberoByCedulaController,
+  listBarberosController,
   updateBarberoController,
 } from "./barbero.controller.js";
 import { createBarberoSchema, disponiblesSchema, updateBarberoSchema } from "./barbero.schemas.js";
@@ -15,6 +16,7 @@ export const barberoRoutes = Router();
 
 barberoRoutes.get("/disponibles", auth, validate(disponiblesSchema), disponiblesController);
 
+barberoRoutes.get("/", auth, authorize(["SUPERADMIN"]), listBarberosController);
 barberoRoutes.post("/", auth, authorize(["SUPERADMIN"]), validate(createBarberoSchema), createBarberoController);
 barberoRoutes.get("/:cedula_barbero", auth, getBarberoByCedulaController);
 barberoRoutes.put("/:cedula_barbero", auth, authorize(["SUPERADMIN"]), validate(updateBarberoSchema), updateBarberoController);

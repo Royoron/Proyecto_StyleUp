@@ -4,48 +4,11 @@ import { useApp } from "../context/AppContext";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { loginSuperAdmin, sesion, logout } = useApp();
+  const { loginSuperAdmin } = useApp();
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
-
-  if (sesion?.rol === "superadmin") {
-    return (
-      <main className="home-page">
-        <section className="hero">
-          <div className="hero-lineas" />
-          <div className="hero-letra">S</div>
-          <div className="container position-relative">
-            <div className="hero-etiqueta">Superadmin</div>
-            <h1 className="hero-titulo">
-              Style<span className="acento">Up</span>
-            </h1>
-
-            <div className="su-modal" style={{ marginTop: "2rem" }}>
-              <div className="su-modal-body">
-                <h4 className="su-modal-titulo">Sesion iniciada</h4>
-                <p className="su-modal-sub">
-                  Estas autenticado como superadmin.
-                </p>
-                <button
-                  className="btn-principal w-100 su-btn-submit"
-                  onClick={() => logout()}
-                >
-                  Cerrar sesion
-                </button>
-                <p className="su-modal-pie">
-                  <Link className="su-link" to="/">
-                    Volver al inicio
-                  </Link>
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -3,13 +3,17 @@ import { cedulaSchema } from "../clientes/cliente.schemas.js";
 
 export const citaEstadoSchema = z.enum(["Pendiente", "Confirmada", "Cancelada", "Completada"]);
 
+export const horaSchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "La hora debe tener formato HH:MM");
+
 export const createCitaSchema = z.object({
   body: z.object({
     cedula_cliente: cedulaSchema,
     cedula_barbero: cedulaSchema,
     id_especialidad: z.coerce.number().int().positive(),
     fecha: z.coerce.date(),
-    hora: z.string().min(1),
+    hora: horaSchema,
   }),
   query: z.any().optional(),
   params: z.any().optional(),

@@ -1,14 +1,18 @@
 import { z } from "zod";
-import { cedulaSchema } from "../clientes/cliente.schemas.js";
+import {
+  cedulaSchema,
+  nombreSchema,
+  telefonoSchema,
+} from "../clientes/cliente.schemas.js";
 
 export const createBarberoBodySchema = z.object({
   cedula_barbero: cedulaSchema,
-  nombre: z.string().min(1),
-  apellido: z.string().min(1),
+  nombre: nombreSchema,
+  apellido: nombreSchema,
   id_especialidad: z.coerce.number().int().positive(),
   correo: z.string().email(),
   contrasena: z.string().min(6),
-  telefono: z.string().min(1),
+  telefono: telefonoSchema,
 });
 
 export const createBarberoSchema = z.object({
@@ -26,6 +30,10 @@ export const updateBarberoSchema = z.object({
 export const disponiblesSchema = z.object({
   query: z.object({
     id_especialidad: z.coerce.number().int().positive(),
+    fecha: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "La fecha debe tener formato YYYY-MM-DD")
+      .optional(),
   }),
   body: z.any().optional(),
   params: z.any().optional(),
